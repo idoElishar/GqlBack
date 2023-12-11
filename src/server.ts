@@ -1,31 +1,58 @@
 import express from "express";
+import { ApolloServer } from "@apollo/server";
+import { expressMiddleware } from "@apollo/server/express4";
+import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
 import cors from "./middleware/cors/cors";
 import morgan from "./middleware/morgen/morgen";
-import usersRoute from './users/routes.users';
-import productRoute from './Banners/Banners.Routes';
+import usersRoute from "./users/routes.users";
+import productRoute from "./Banners/Banners.Routes";
 import { connectToDatabase } from "./connectToDB";
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
+import resolvers from "../apolloServer/resolvers/resolves";
+import http from "http";
+import { usersTypeDefs } from "../apolloServer/typedeps/users.typedepd";
+import bannerTypeDefs from "../apolloServer/typedeps/banner.typedep";
+
+interface MyContext {
+  token?: string;
+}
+
 dotenv.config();
 
-export const api = process.env.MONGO || ''
-export const secret_key = process.env.SECRET_KEY || "erp"
-export const server = process.env.MY_SERVER ||"https://serverbanners.onrender.com"
+export const api = process.env.MONGO || "";
+export const secret_key = process.env.SECRET_KEY || "erp";
+export const server = process.env.MY_SERVER || "http://localhost:8008";
 
 const app = express();
+const httpServer = http.createServer(app);
 
-connectToDatabase();
+const apolloServer = new ApolloServer<MyContext>({
+  typeDefs:usersTypeDefs + bannerTypeDefs,
+  resolvers,
+  plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+});
 
-app.use(express.json({limit: '50mb'}));
+async function startServer() {
+  await apolloServer.start();
 
-app.use(cors)
-app.use(morgan)
+  app.use(
+    "/graphql",
+    cors,
+    morgan,
+    express.json(),
+    expressMiddleware(apolloServer, {
+      context: async ({ req }) => ({ token: req.headers.token }),
+    })
+  );
 
+  httpServer.listen({ port: 4000 }, () => {
+    console.log(`🚀 Server ready at http://localhost:4000/graphql`);
+  });
 
+  connectToDatabase();
 
-const port = process.env.PORT || 8008
-app.listen(port, () => console.log(`server run in port ${port}!`));
+  // app.use("/banners", productRoute);
+  // app.use("/users", usersRoute);
+}
 
-app.use('/banners', productRoute);
-app.use('/users', usersRoute);
-
-
+startServer();
