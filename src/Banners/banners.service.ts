@@ -2,10 +2,10 @@
 import { BannerModel,Banner } from './Banners.model';
 
 const bannerService = {
-    getAllBanners: async (): Promise<Banner[]> => {
+    getAllBanners: async ():Promise<any> => {
         return await BannerModel.find({});
     },
-    getBannerById: async (_id: string): Promise<Banner | null> => {
+    getBannerById: async (_id: string): Promise<any> => {
         return await BannerModel.findOne({ _id });
     },
     createBanner: async (banner: Banner): Promise<Banner> => {
@@ -34,3 +34,11 @@ const bannerService = {
 
 
 export default bannerService;
+
+
+
+
+
+
+
+

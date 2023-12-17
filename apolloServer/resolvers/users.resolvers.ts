@@ -27,12 +27,13 @@ export const usersResolvers = {
     },
   },
   Mutation: {
-    deleteUser: async (_: any, { id }: any) => {
+    deleteUser:async (_:any,id:string) => {
       const deletionResult = await usersDAL.deleteUserById(id);
       if (!deletionResult) {
-        throw new Error("Error deleting user.");
+        throw new Error('Error deleting user.');
       }
-      return deletionResult;
+  
+      return  'User deleted successfully' ;
     },
     loginUser: async (_: any, args: { email: string; password: string }) => {
       const { email, password } = args;

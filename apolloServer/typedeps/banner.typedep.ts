@@ -33,10 +33,10 @@ const bannerTypeDefs = `#graphql
   }
   type Query {
     getAllBanners: [Banner]
-    getBannerById(_id: String!): Banner
+    getBannerById(_id: String!): [Banner]
     getBannersByCategory(category: String!): [Banner]
     getBannersByAuthor(author: String!): [Banner]
-    getBannerByProductID(productID: Int!): Banner
+    getBannerByProductID(productID: Int!):[ Banner]
   }
   type Mutation {
     createBanner(banner: BannerInput!): Banner
