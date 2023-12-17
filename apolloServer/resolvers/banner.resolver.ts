@@ -1,8 +1,10 @@
 import bannerService from "../../src/Banners/banners.service";
 import { Banner } from "../../src/Banners/Banners.model"; 
+
 import { authenticateToken } from "../../src/middleware/morgen/middleware";
 import { getOrSetCache } from "../../src/redis/banners";
 import bannersController from "../../src/Banners/banners.Controller";
+
 interface QueryResolvers {
 
     getAllBanners: () => Promise<Banner[]>;
@@ -21,10 +23,12 @@ interface MutationResolvers {
 }
 const bannerResolvers: { Query: QueryResolvers, Mutation: MutationResolvers } = {
     Query: {
-        getAllBanners: async () => {
+        getAllBanners : async () => {
             try {
+
                 const banners = await getOrSetCache(bannerService.getAllBanners) 
                 // console.log(banners);
+
                 return banners;
             } catch (error) {
                 console.error('Error fetching banners:', error);
@@ -34,11 +38,13 @@ const bannerResolvers: { Query: QueryResolvers, Mutation: MutationResolvers } = 
         getBannerById: async (_, args) => {
            
             try {
+
                 const banners:Banner[] = await getOrSetCache(bannerService.getAllBanners) 
                 if (!banners) {
                     throw new Error('Banner not found');
                 }
                 const banner = banners.filter(banner => banner._id  == args._id)
+
 
                 return banner;
             } catch (error) {
@@ -46,6 +52,7 @@ const bannerResolvers: { Query: QueryResolvers, Mutation: MutationResolvers } = 
                 throw new Error('Internal server error');
             }
         },
+        
         getBannersByCategory: async (_, args) => {
             try {
                 const banners:Banner[] = await getOrSetCache(bannerService.getAllBanners) 
@@ -89,9 +96,11 @@ const bannerResolvers: { Query: QueryResolvers, Mutation: MutationResolvers } = 
     Mutation: {
         createBanner: async (_, args, context) => {
             try {
+
          
                 await authenticateToken(context.token);
    
+
                 const newBanner = await bannerService.createBanner(args.banner);
                 
                 return newBanner;
