@@ -8,26 +8,44 @@ import { Request, Response } from 'express';
 import usersDAL from './Dal.users';
 import { secret_key, server } from '../server';
 import nodemailer from 'nodemailer';
+import {client} from '../server';
 
 const generateToken = (userId: string) => {
     return jwt.sign({ userId }, secret_key, { expiresIn: '3h' });
 };
-
-const getAlllUsers = async (req: Request, res: Response) => {
+const getAlllUsers = async (req: Request, res: Response): Promise<void> => {
     try {
-        const users = await usersService.getAllUsers();
-        res.status(200).json(users);
+        console.log("Request received to get all users");
+        const cachedUsers = await client.get('users');
+        if (!cachedUsers) {
+            console.log("No cached users. Fetching from database.");
+            const users = await usersService.getAllUsers();
+            await client.set('users', JSON.stringify(users));
+            res.status(200).json(users);
+        } else {
+            console.log("Returning cached users");
+            res.status(200).json(JSON.parse(cachedUsers));
+        }
     } catch (error) {
-        res.status(500).json({ message: 'Internal server error' });
+        console.error("Error fetching users:", error);
+        res.status(500).json({ message: "Internal server error" });
     }
 };
-const getUserByID = async (req: Request, res: Response) => {
+const getUserByID = async (req: Request, res: Response): Promise<any> => {
     const userId = req.params.id;
     try {
+        const cachedUser = await client.get(`user:${userId}`);
+        if (cachedUser) {
+            console.log("Returning cached user");
+            return res.status(200).json(JSON.parse(cachedUser));
+        }
+
+        console.log("Fetching user from the database.");
         const user = await usersService.getUserById(userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
+        await client.set(`user:${userId}`, JSON.stringify(user));
         res.status(200).json(user);
     } catch (error) {
         if (error instanceof Error) {
@@ -37,6 +55,7 @@ const getUserByID = async (req: Request, res: Response) => {
         }
     }
 };
+
 const registerUser = async (req: Request, res: Response) => {
     const { error } = registerUserSchema.validate(req.body);
     if (error) return res.status(400).json({ message: error.details[0].message });
@@ -113,8 +132,6 @@ const deleteUserById = async (req: Request, res: Response) => {
             res.status(500).json({ message: 'An unknown error occurred' });
         }
     }
-
-
 };
 const changePassword = async (req: Request, res: Response) => {
     const { email, newPassword } = req.body;
