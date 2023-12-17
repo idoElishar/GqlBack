@@ -81,9 +81,7 @@ const bannerResolvers: { Query: QueryResolvers, Mutation: MutationResolvers } = 
     Mutation: {
         createBanner: async (_, args, context) => {
             try {
-                // אימות הטוקן
                 await authenticateTokenAsync(context.token);
-                // יצירת הבאנר
                 const newBanner = await bannerService.createBanner(args.banner);
                 return newBanner;
             }catch (error) {

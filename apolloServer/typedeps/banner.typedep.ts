@@ -1,6 +1,5 @@
 const bannerTypeDefs = `#graphql
 
-
   type Banner {
     _id: String
     id:Int
