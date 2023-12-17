@@ -60,6 +60,7 @@ export const usersResolvers = {
 
   },
   Mutation: {
+
     deleteUser: async (_: any, { id }: any) => {
       try {
         console.log("Attempting to delete user from the database and cache.");
@@ -74,6 +75,7 @@ export const usersResolvers = {
         console.error(`Error deleting user by ID ${id}:`, error);
         throw new Error('Internal server error');
       }
+
     },
 
     loginUser: async (_: any, args: { email: string; password: string }) => {

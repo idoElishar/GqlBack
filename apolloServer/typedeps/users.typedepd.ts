@@ -35,7 +35,7 @@ export const usersTypeDefs = `#graphql
   }
 
   type Mutation {
-    deleteUser(id: ID!): User 
+    deleteUser(id: String!): String 
     loginUser(email: String!, password: String!): LoginResponse
     registerUser(newUser: NewUserInput!): registerResponse
     changePassword(email:String!,newPassword:String!):changePasswordResponse

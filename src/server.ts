@@ -10,6 +10,8 @@ import resolvers from "../apolloServer/resolvers/resolves";
 import http from "http";
 import { usersTypeDefs } from "../apolloServer/typedeps/users.typedepd";
 import bannerTypeDefs from "../apolloServer/typedeps/banner.typedep";
+import { client } from "./redis/banners";
+import chalk from "chalk";
 import { clicksTypeDefs } from "../apolloServer/typedeps/bannerClicks.typedep";
 import { createClient } from 'redis'; 
 interface MyContext {
@@ -59,9 +61,15 @@ async function startServer() {
             }
         });
 
-    httpServer.listen({ port: 4000 }, () => {
-        console.log(`🚀 Server ready at http://localhost:4000/graphql`);
-    });
+
+  httpServer.listen({ port: 4000 }, () => {
+    console.log(`🚀 Server ready at http://localhost:4000/graphql`);
+    client.connect()
+    .then(() =>  console.log( chalk.magentaBright("connected successfully to Redis client!!! ")))
+    .catch((error) => {  if (error instanceof Error) console.log(error.message) })})
+  
+
+
   connectToDatabase();
 }
 

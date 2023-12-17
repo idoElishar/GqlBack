@@ -2,9 +2,9 @@ import { Request, Response } from 'express';
 import productService from './banners.service';
 import { BannerModel, bannerJoiSchema,Banner } from './Banners.model';
 
-const getAllBanners = async (req: Request, res: Response): Promise<void> => {
+const getAllBanners = async (req: Request, res: Response) => {
+    console.log("messi");
     try {
-        console.log('Request received to get all products');
         const products = await productService.getAllBanners();
         res.status(200).json(products);
     } catch (error) {

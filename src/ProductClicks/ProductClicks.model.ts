@@ -1,6 +1,7 @@
 import mongoose, { Document, Schema } from 'mongoose';
 import Joi from 'joi';
 
+
 interface ClickEntry {
   date: string;
   count: number;
@@ -33,4 +34,5 @@ const productClicksSchema = new Schema<ProductClicks>({
 }, { versionKey: false });
 
 const ProductClicksModel = mongoose.model<ProductClicks>('dateforbanner', productClicksSchema, 'dateforbanner');
+
 export { ProductClicksModel };
