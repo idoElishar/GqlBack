@@ -1,4 +1,6 @@
 import express from "express";
+import { createClient } from "redis";
+import chalk from "chalk";
 import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
@@ -33,6 +35,14 @@ const apolloServer = new ApolloServer<MyContext>({
   plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
 });
 
+export const client = createClient({
+  password: 'WTFwithRedis',
+  socket: {
+      host: '127.0.0.1',
+      port: 6379
+  }
+});
+
 async function startServer() {
   await apolloServer.start();
 
@@ -47,7 +57,11 @@ async function startServer() {
   );
 
   httpServer.listen({ port: 4000 }, () => {
-    console.log(`🚀 Server ready at http://localhost:4000/graphql`);
+    console.log(chalk.blueBright(`🚀 Server ready at http://localhost:4000/graphql`));
+    client.connect()
+        .then(() => console.log(chalk.yellowBright("connected successfully to Redis client!!! 🆒 😎 ")))
+        .catch((error) => { if (error instanceof Error) console.log(chalk.redBright(error.message)) })
+        
   });
 
   connectToDatabase();
