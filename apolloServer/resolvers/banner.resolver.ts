@@ -1,6 +1,7 @@
 import bannerService from "../../src/Banners/banners.service";
 import { Banner } from "../../src/Banners/Banners.model"; 
 import { authenticateTokenAsync } from "../../src/middleware/morgen/middleware";
+import { client } from "../../src/server";
 interface QueryResolvers {
 
     getAllBanners: () => Promise<Banner[]>;
@@ -19,10 +20,20 @@ interface MutationResolvers {
 }
 const bannerResolvers: { Query: QueryResolvers, Mutation: MutationResolvers } = {
     Query: {
-        getAllBanners: async () => {
+        getAllBanners : async () => {
             try {
                 console.log('Request received to get all banners');
+                const cachedBanners = await client.get('banners');
+                if (cachedBanners) {
+                    console.log("Returning cached banners");
+                    return JSON.parse(cachedBanners);
+                }
+        
+                console.log("Fetching banners from the database.");
                 const banners = await bannerService.getAllBanners();
+        
+                await client.set('banners', JSON.stringify(banners));
+        
                 return banners;
             } catch (error) {
                 console.error('Error fetching banners:', error);
@@ -31,16 +42,27 @@ const bannerResolvers: { Query: QueryResolvers, Mutation: MutationResolvers } = 
         },
         getBannerById: async (_, args) => {
             try {
+                const cachedBanner = await client.get(`banner:${args._id}`);
+                if (cachedBanner) {
+                    console.log("Returning cached banner");
+                    return JSON.parse(cachedBanner);
+                }
+        
+                console.log("Fetching banner from the database.");
                 const banner = await bannerService.getBannerById(args._id);
                 if (!banner) {
                     throw new Error('Banner not found');
                 }
+        
+                await client.set(`banner:${args._id}`, JSON.stringify(banner));
+        
                 return banner;
             } catch (error) {
                 console.error('Error fetching banner by ID:', error);
                 throw new Error('Internal server error');
             }
         },
+        
         getBannersByCategory: async (_, args) => {
             try {
                 const banners = await bannerService.getBannersByCategory(args.category);
