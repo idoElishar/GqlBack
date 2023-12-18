@@ -46,7 +46,8 @@ async function startServer() {
   );
 
   httpServer.listen({ port: 4000 }, () => {
-    console.log(`🚀 Server ready at http://localhost:4000/graphql`);
+
+    console.log(chalk.blueBright(`🚀 Server ready at http://localhost:4000/graphql`));
     client.connect()
     .then(() =>  console.log( chalk.magentaBright("connected successfully to Redis client!!! ")))
     .catch((error) => {  if (error instanceof Error) console.log(error.message) })})
