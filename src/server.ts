@@ -1,5 +1,4 @@
 import express from "express";
-import { createClient } from "redis";
 import chalk from "chalk";
 import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
@@ -12,7 +11,6 @@ import resolvers from "../apolloServer/resolvers/resolves";
 import http from "http";
 import { usersTypeDefs } from "../apolloServer/typedeps/users.typedepd";
 import bannerTypeDefs from "../apolloServer/typedeps/banner.typedep";
-import chalk from "chalk";
 import { clicksTypeDefs } from "../apolloServer/typedeps/bannerClicks.typedep";
 import { client } from "./redis/banners";
 
