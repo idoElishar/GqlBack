@@ -1,6 +1,6 @@
 import { ProductClicks } from "../../src/ProductClicks/ProductClicks.model";
 import bannerClicksService from "../../src/ProductClicks/productClicks.service";
-import { client } from "../../src/server";
+import { client } from "../../src/redis/banners";
 
 const resolvers2 = {
     Query: {

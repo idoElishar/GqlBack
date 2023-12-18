@@ -52,7 +52,7 @@ async function startServer() {
     .then(() =>  console.log( chalk.magentaBright("connected successfully to Redis client!!! ")))
     .catch((error) => {  if (error instanceof Error) console.log(error.message) })})
   
-  connectToDatabase();
+  connectToDatabase()
 }
 
 startServer();
