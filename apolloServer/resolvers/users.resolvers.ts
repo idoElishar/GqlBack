@@ -2,16 +2,10 @@ import { Types } from "mongoose";
 import { server } from "../../src/server";
 import usersDAL from "../../src/users/Dal.users";
 import usersService from "../../src/users/service.users";
-import { client } from "../../src/server";
-
-import {
-  changePasswordSchema,
-  loginUserSchema,
-  registerUserSchema,
-  updateUserSchema,
-} from "../../src/users/users.model";
+import {changePasswordSchema, loginUserSchema, registerUserSchema, updateUserSchema,} from "../../src/users/users.model";
 import { generateToken } from "../../src/utils/jwt";
 import { sendVerificationEmail } from "../../src/utils/sendEmail";
+import { client } from "../../src/redis/banners";
 
 export const usersResolvers = {
   Query: {

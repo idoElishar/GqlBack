@@ -10,10 +10,10 @@ import resolvers from "../apolloServer/resolvers/resolves";
 import http from "http";
 import { usersTypeDefs } from "../apolloServer/typedeps/users.typedepd";
 import bannerTypeDefs from "../apolloServer/typedeps/banner.typedep";
-import { client } from "./redis/banners";
 import chalk from "chalk";
 import { clicksTypeDefs } from "../apolloServer/typedeps/bannerClicks.typedep";
-import { createClient } from 'redis'; 
+import { client } from "./redis/banners";
+
 interface MyContext {
   token?: string;
 }
@@ -31,13 +31,6 @@ const apolloServer = new ApolloServer<MyContext>({
   plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
 });
 
-export const client = createClient({
-  password: 'MVQENSwDAAtobdqT8QrzyLcjNwaEfZma',
-  socket: {
-      host: 'redis-16155.c325.us-east-1-4.ec2.cloud.redislabs.com',
-      port: 16155
-  }
-});
 
 async function startServer() {
   await apolloServer.start();
@@ -51,16 +44,6 @@ async function startServer() {
       context: async ({ req }) => ({ token: req.headers.token }),
     })
   );
-  client.connect()
-        .then(() => {
-            console.log("connected successfully to Redis client!!!");
-        })
-        .catch((error:any) => {
-            if (error instanceof Error) {
-                console.log(error.message);
-            }
-        });
-
 
   httpServer.listen({ port: 4000 }, () => {
     console.log(`🚀 Server ready at http://localhost:4000/graphql`);
@@ -68,8 +51,6 @@ async function startServer() {
     .then(() =>  console.log( chalk.magentaBright("connected successfully to Redis client!!! ")))
     .catch((error) => {  if (error instanceof Error) console.log(error.message) })})
   
-
-
   connectToDatabase();
 }
 

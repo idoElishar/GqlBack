@@ -1,9 +1,7 @@
 import bannerService from "../../src/Banners/banners.service";
 import { Banner } from "../../src/Banners/Banners.model"; 
-
 import { authenticateToken } from "../../src/middleware/morgen/middleware";
 import { getOrSetCache } from "../../src/redis/banners";
-import bannersController from "../../src/Banners/banners.Controller";
 
 interface QueryResolvers {
 
