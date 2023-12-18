@@ -1,13 +1,17 @@
 import bannerService from "../../src/Banners/banners.service";
 import { Banner } from "../../src/Banners/Banners.model"; 
-import { authenticateTokenAsync } from "../../src/middleware/morgen/middleware";
+
+import { authenticateToken } from "../../src/middleware/morgen/middleware";
+import { getOrSetCache } from "../../src/redis/banners";
+import bannersController from "../../src/Banners/banners.Controller";
+
 interface QueryResolvers {
 
     getAllBanners: () => Promise<Banner[]>;
-    getBannerById: (_: any, args: { _id: string }) => Promise<Banner | null>;
+    getBannerById: (_: any, args: { _id: string }) => Promise<any>
     getBannersByCategory: (_: any, args: { category: string }) => Promise<Banner[]>;
     getBannersByAuthor: (_: any, args: { author: string }) => Promise<Banner[]>;
-    getBannerByProductID: (_: any, args: { productID: string }) => Promise<Banner | null>;
+    getBannerByProductID: (_: any, args: { productID: string }) => Promise<Banner[]>;
 }
 interface MyContext {
     token?: string;
@@ -19,10 +23,12 @@ interface MutationResolvers {
 }
 const bannerResolvers: { Query: QueryResolvers, Mutation: MutationResolvers } = {
     Query: {
-        getAllBanners: async () => {
+        getAllBanners : async () => {
             try {
-                console.log('Request received to get all banners');
-                const banners = await bannerService.getAllBanners();
+
+                const banners = await getOrSetCache(bannerService.getAllBanners) 
+                // console.log(banners);
+
                 return banners;
             } catch (error) {
                 console.error('Error fetching banners:', error);
@@ -30,24 +36,31 @@ const bannerResolvers: { Query: QueryResolvers, Mutation: MutationResolvers } = 
             }
         },
         getBannerById: async (_, args) => {
+           
             try {
-                const banner = await bannerService.getBannerById(args._id);
-                if (!banner) {
+
+                const banners:Banner[] = await getOrSetCache(bannerService.getAllBanners) 
+                if (!banners) {
                     throw new Error('Banner not found');
                 }
+                const banner = banners.filter(banner => banner._id  == args._id)
+
+
                 return banner;
             } catch (error) {
                 console.error('Error fetching banner by ID:', error);
                 throw new Error('Internal server error');
             }
         },
+        
         getBannersByCategory: async (_, args) => {
             try {
-                const banners = await bannerService.getBannersByCategory(args.category);
-                if (banners.length === 0) {
+                const banners:Banner[] = await getOrSetCache(bannerService.getAllBanners) 
+                if (!banners) {
                     throw new Error('No banners found in this category');
                 }
-                return banners;
+                const bannerByCategory = banners.filter (b => b.category === args.category)
+                return bannerByCategory;
             } catch (error) {
                 console.error('Error fetching banners by category:', error);
                 throw new Error('Internal server error');
@@ -55,11 +68,12 @@ const bannerResolvers: { Query: QueryResolvers, Mutation: MutationResolvers } = 
         },
         getBannersByAuthor: async (_, args) => {
             try {
-                const banners = await bannerService.getBannersByAuthor(args.author);
-                if (banners.length === 0) {
+                const banners:Banner[] = await getOrSetCache(bannerService.getAllBanners) 
+                if (!banners) {
                     throw new Error('No banners found for this author');
                 }
-                return banners;
+                const bannerByAuthor = banners.filter(b => b.author === args.author)
+                return bannerByAuthor;
             } catch (error) {
                 console.error('Error fetching banners by author:', error);
                 throw new Error('Internal server error');
@@ -67,10 +81,11 @@ const bannerResolvers: { Query: QueryResolvers, Mutation: MutationResolvers } = 
         },
         getBannerByProductID: async (_, args) => {
             try {
-                const banner = await bannerService.getBannerByProductID(args.productID);
-                if (!banner) {
+                const banners:Banner[] = await getOrSetCache(bannerService.getAllBanners) 
+                if (!banners) {
                     throw new Error('Banner not found with the given product ID');
                 }
+                const banner = banners.filter(b => b.productID === +args.productID)
                 return banner;
             } catch (error) {
                 console.error('Error fetching banner by product ID:', error);
@@ -81,8 +96,13 @@ const bannerResolvers: { Query: QueryResolvers, Mutation: MutationResolvers } = 
     Mutation: {
         createBanner: async (_, args, context) => {
             try {
-                await authenticateTokenAsync(context.token);
+
+         
+                await authenticateToken(context.token);
+   
+
                 const newBanner = await bannerService.createBanner(args.banner);
+                
                 return newBanner;
             }catch (error) {
                 if (error instanceof Error) {
@@ -96,7 +116,7 @@ const bannerResolvers: { Query: QueryResolvers, Mutation: MutationResolvers } = 
         },
         updateBanner: async (_, args, context) => {
             try {
-                await authenticateTokenAsync(context.token);
+                await authenticateToken(context.token);
                 console.log(args.id);
                 const updatedBanner = await bannerService.updateBanner(args.id, args.updatedBanner);
                 if (!updatedBanner) {
@@ -115,7 +135,7 @@ const bannerResolvers: { Query: QueryResolvers, Mutation: MutationResolvers } = 
         },
         deleteBanner: async (_, args, context) => {
             try {
-                await authenticateTokenAsync(context.token);
+                await authenticateToken(context.token);
                 const deletedBanner = await bannerService.deleteBanner(args.id);
                 console.log(deletedBanner);
                 if (!deletedBanner) {

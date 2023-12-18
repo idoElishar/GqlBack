@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 const SECRET_KEY = 'erp';
-export const authenticateTokenAsync = (token:any) => {
+export const authenticateToken = (token:any) => {
   return new Promise((resolve, reject) => {
     console.log("hi"+token);
     if (!token) {
