@@ -1,10 +1,18 @@
 import { createClient } from "redis";
 
+// export const client = createClient({
+//     password: 'WTFwithRedis',
+//     socket: {
+//         host: 'localhost',
+//         port: 6379
+//     }
+// });
+
 export const client = createClient({
-    password: '1234qwer',
+    password: 'MVQENSwDAAtobdqT8QrzyLcjNwaEfZma',
     socket: {
-        host: 'localhost',
-        port: 6379
+        host: 'redis-16155.c325.us-east-1-4.ec2.cloud.redislabs.com',
+        port: 16155
     }
 });
 
