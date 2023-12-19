@@ -1,6 +1,6 @@
 import express, { Router } from 'express';
 import bannerController from './banners.Controller';
-import { authenticateTokenAsync } from '../middleware/morgen/middleware';
+import { authenticateToken } from '../middleware/morgen/middleware';
 
 const router: Router = express.Router();
 
@@ -10,9 +10,9 @@ router.get('/cat/:category', bannerController.getBannersByCategory);
 router.get('/author/:author', bannerController.getBannersByAuthor);
 router.get('/product/:productID', bannerController.getBannerByProductID);
 
-router.post('/', authenticateTokenAsync, bannerController.createBanner);
-router.put('/:id', authenticateTokenAsync, bannerController.updateBanner);
-router.put('/addrating/:id', authenticateTokenAsync, bannerController.incrementBannerRating);
-router.delete('/:id', authenticateTokenAsync, bannerController.deleteBanner);
+router.post('/', authenticateToken, bannerController.createBanner);
+router.put('/:id', authenticateToken, bannerController.updateBanner);
+router.put('/addrating/:id', authenticateToken, bannerController.incrementBannerRating);
+router.delete('/:id', authenticateToken, bannerController.deleteBanner);
 
 export default router;

@@ -1,5 +1,4 @@
 export const usersTypeDefs = `#graphql
-
    type LoginResponse {
       user: User
       token: String
@@ -28,6 +27,16 @@ export const usersTypeDefs = `#graphql
     password: String
     isAdmin: Boolean
 }
+type deleteUser {
+  tempPassword: String
+  passwordResetToken: String
+  passwordResetExpires: String
+  _id: ID!
+  username: String!
+  email: String!
+  password: String!
+  isAdmin: Boolean!
+}
 
   type Query {
     users: [User]
@@ -35,7 +44,7 @@ export const usersTypeDefs = `#graphql
   }
 
   type Mutation {
-    deleteUser(id: String!): String 
+    deleteUser(id: String!): deleteUser 
     loginUser(email: String!, password: String!): LoginResponse
     registerUser(newUser: NewUserInput!): registerResponse
     changePassword(email:String!,newPassword:String!):changePasswordResponse
